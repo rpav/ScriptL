@@ -1,7 +1,8 @@
 ;;; This uses UNIX-OPTIONS because it seems to do the most and be the
 ;;; least presumptive about how we're going to do it.  You can, of
 ;;; course, use whatever you like.
-(asdf:load-system :unix-options)
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (asdf:load-system :unix-options))
 
 (defpackage :scriptl.example
   (:use #:cl #:scriptl #:unix-options)
