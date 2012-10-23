@@ -32,7 +32,11 @@
   (with-slots (stream) pio-stream
     (send-packet stream ":read-line")
     (finish-output stream)
-    (read-packet stream)))
+    (handler-case
+        (read-packet stream)
+      (end-of-file (c)
+        (declare (ignore c))
+        (values nil t)))))
 
 (defmethod trivial-gray-streams:stream-read-sequence
     ((pio-stream packet-io-stream) seq start end &key &allow-other-keys)
