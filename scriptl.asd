@@ -14,7 +14,7 @@
     (let ((path (asdf:component-pathname c)))
       (unless (probe-file (merge-pathnames test-target path))
         (let ((*verbose-out* *standard-output*))
-          (run-shell-command "cd ~A ; ./configure ~@[--prefix=~A~] ~A ; make"
+          (run-shell-command "cd ~A ; ./configure ~@[--prefix=~A~] ~@[~A~]; make"
                              path prefix configure-args))))))
 
 (defmethod operation-done-p ((op compile-op) (c autoconf-module))
@@ -34,13 +34,12 @@
   ((:file "package")
    (:file "proto")
    (:file "packet-io-stream")
+   (:file "script-text")
+   (:file "make-script")
    (:file "scriptl-v1")
    (:file "scriptl-v2")
    (:file "server")
-   (:file "script-text")
-   (:file "make-script")
 
-   #+-
    (:autoconf-module "scriptlcom"
     :pathname "scriptlcom"
-    :test-target "scriptlcom")))
+    :test-target "src/scriptlcom")))

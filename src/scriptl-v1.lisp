@@ -45,3 +45,15 @@
        (let ((*script* (caddr (header-command *header*))))
          (sending-result stream
            (apply (header-fun *header*) (header-args *header*))))))))
+
+(defmethod make-script-for ((version (eql 1)) filename function error-fun
+                            &key &allow-other-keys)
+  (with-open-file (stream filename :direction :output
+                                   :if-exists :supersede)
+    (format stream *script-text-v1*
+            (format nil "~A::~A"
+                    (package-name (symbol-package error-fun))
+                    (symbol-name error-fun))
+            (format nil "~A::~A"
+                    (package-name (symbol-package function))
+                    (symbol-name function)))))

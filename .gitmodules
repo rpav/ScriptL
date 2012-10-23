@@ -1,0 +1,3 @@
+[submodule "src/scriptlcom"]
+	path = src/scriptlcom
+	url = git@github.com:rpav/scriptlcom.git
