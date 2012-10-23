@@ -35,7 +35,7 @@ encode_args () {
 }
 
 parse () {
-    read status
+    status=`read_packet`
 
     if [ "$status" = ":ok" ]; then
         ret=`read_packet`
@@ -47,7 +47,7 @@ parse () {
             echo "$out"
         fi
     else
-        read err
+        err=`read_packet`
         str=`read_packet`
 
         echo "Error: $err"
@@ -70,10 +70,10 @@ fi
 {
     cmd="$1"
     shift
-    echo "(:scriptl 1)"
-    echo "(:cwd #P\"`pwd`/\")"
-    echo "(:funcall $# #P\"$0\")"
-    echo "(:errors nil)"
-    echo "$cmd"
+    encode_packet "(:scriptl 1)"
+    encode_packet "(:cwd #P\"`pwd`/\")"
+    encode_packet "(:funcall $# #P\"$0\")"
+    encode_packet "(:errors nil)"
+    encode_packet "$cmd"
     encode_args "$@"
 } | nc localhost $SCRIPTL_PORT | parse

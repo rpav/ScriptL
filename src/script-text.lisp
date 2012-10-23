@@ -3,7 +3,7 @@
 ;;; Emacs gets really confused with syntax and thus this is separated
 ;;; into its own file.
 
-(defparameter *script-text*
+(defparameter *script-text-v1*
   "#!/bin/sh
 if [ -z \"$SCRIPTL_PORT\" ]; then SCRIPTL_PORT=4010; fi
 encode_length () {
@@ -25,20 +25,20 @@ encode_args () {
     for i in \"$@\"; do encode_packet \"$i\"; done
 }
 parse () {
-    read status
+    status=`read_packet`
     if [ \"$status\" = \":ok\" ]; then
         ret=`read_packet`; out=`read_packet`
         if [ -z \"$out\" ]; then echo \"$ret\"; else echo \"$out\"; fi
     else
-        read err; str=`read_packet`; echo \"Error: $err\"; echo; echo $str
+        err=`read_packet`; str=`read_packet`; echo \"Error: $err\"; echo; echo $str
     fi
 }
 
-{ echo \"(:scriptl 1)\"
-  echo \"(:cwd #P\\\"`pwd`/\\\")\"
-  echo \"(:funcall $# #P\\\"$0\\\")\"
-  echo \"(:errors ~A)\"
-  echo \"~A\"
+{ encode_packet \"(:scriptl 1)\"
+  encode_packet \"(:cwd #P\\\"`pwd`/\\\")\"
+  encode_packet \"(:funcall $# #P\\\"$0\\\")\"
+  encode_packet \"(:errors ~A)\"
+  encode_packet \"~A\"
   encode_args \"$@\"
 } | nc localhost $SCRIPTL_PORT | parse
 ")

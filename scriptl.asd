@@ -32,6 +32,8 @@
   :components
   ((:file "package")
    (:file "proto")
+   (:file "scriptl-v1")
+   (:file "scriptl-v2")
    (:file "server")
    (:file "script-text")
    (:file "make-script")

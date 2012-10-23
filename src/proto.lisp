@@ -6,6 +6,11 @@
 (deftype octet-vector () '(simple-array octet (*)))
 (deftype index () `(integer 0 ,array-total-size-limit))
 
+ ;; GFs
+
+(defgeneric decode-header-for (version stream))
+(defgeneric handle-client-for (version stream))
+
  ;; Errors
 
 (define-condition version-error (error)
@@ -22,30 +27,19 @@
   version cwd command fun args error-fun)
 
 (defun decode-header (stream)
-  (let* ((ver (cadr (read-from-string (read-line stream))))
-         (cwd (cadr (read-from-string (read-line stream))))
-         (cmd (read-from-string (read-line stream)))
-         (err (cadr (read-from-string (read-line stream)))))
-    (unless (= ver 1)
-      (error 'version-error :found-version ver :want-version 1))
-    (let ((header (make-header :version ver :cwd cwd :command cmd
-                               :error-fun err)))
-      (ecase (car cmd)
-        (:eval)
-        (:funcall
-         (setf (header-fun header) (read-from-string (read-line stream)))
-         (loop for i from 0 below (cadr cmd)
-               collect (read-packet stream) into args
-               finally (setf (header-args header) args))))
-      header)))
+  (let* ((ver (cadr (read-from-packet stream))))
+    (unless (<= ver 2)
+      (error 'version-error :want-version 2 :found-version ver))
+    (decode-header-for ver stream)))
 
  ;; Low level
 
-(defun to-octets (value)
-  (etypecase value
-    (string (string-to-utf-8-bytes value))
-    (octet-vector value)
-    (t (string-to-utf-8-bytes (princ-to-string value)))))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defun to-octets (value)
+    (etypecase value
+      (string (string-to-utf-8-bytes value))
+      (octet-vector value)
+      (t (string-to-utf-8-bytes (princ-to-string value))))))
 
 (defun send-packet (stream value)
   (let ((octets (to-octets value)))
@@ -68,3 +62,6 @@
                       (make-string len))))
       (read-sequence input stream)
       input)))
+
+(defun read-from-packet (stream)
+  (read-from-string (read-packet stream)))

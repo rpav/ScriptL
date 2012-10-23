@@ -12,7 +12,7 @@
       (format t "Error function: ~A~%" error-fun))
     (with-open-file (stream filename :direction :output
                                      :if-exists :supersede)
-      (format stream *script-text*
+      (format stream *script-text-v1*
               (format nil "~A::~A"
                       (package-name (symbol-package error-fun))
                       (symbol-name error-fun))
