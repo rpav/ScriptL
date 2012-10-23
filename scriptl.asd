@@ -25,13 +25,15 @@
   :author "Ryan Pavlik"
   :license "LLGPL"
 
-  :depends-on (:alexandria :bordeaux-threads :trivial-utf-8 :iolib :osicat)
+  :depends-on (:alexandria :bordeaux-threads :iolib :osicat
+               :trivial-utf-8 :trivial-gray-streams :trivial-backtrace)
   :pathname "src"
   :serial t
 
   :components
   ((:file "package")
    (:file "proto")
+   (:file "packet-io-stream")
    (:file "scriptl-v1")
    (:file "scriptl-v2")
    (:file "server")

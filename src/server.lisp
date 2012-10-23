@@ -20,7 +20,10 @@ if there is no command.")
        (error (c)
          (send-packet ,stream ":error")
          (send-packet ,stream (class-name (class-of c)))
-         (send-packet ,stream c)))))
+         (send-packet ,stream
+                      (with-output-to-string (str)
+                        (format str "~A~%" c)
+                        #+-(trivial-backtrace:print-backtrace c)))))))
 
 (defun client-loop (stream)
   (unwind-protect
@@ -62,5 +65,5 @@ if there is no command.")
             (client-loop socket)
           (iolib.streams:hangup (c) (declare (ignore c))))))))
 
-(defun start ()
-  (bt:make-thread (lambda () (server-loop :internet)) :name "ScriptL Server"))
+(defun start (&optional (type :local))
+  (bt:make-thread (lambda () (server-loop type)) :name "ScriptL Server"))
