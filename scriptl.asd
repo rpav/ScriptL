@@ -39,6 +39,7 @@
    (:file "scriptl-v1")
    (:file "scriptl-v2")
    (:file "server")
+   (:file "asdf-util")
 
    (:autoconf-module "scriptlcom"
     :pathname "scriptlcom"
