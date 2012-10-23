@@ -1,5 +1,5 @@
 (defpackage :scriptl
-  (:use #:cl #:alexandria #:usocket)
+  (:use #:cl #:alexandria #:trivial-utf-8)
   (:export #:start #:*header* #:*script* #:*scriptl-port*
 
            #:header

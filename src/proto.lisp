@@ -1,5 +1,11 @@
 (in-package :scriptl)
 
+ ;; Types
+
+(deftype octet () '(unsigned-byte 8))
+(deftype octet-vector () '(simple-array octet (*)))
+(deftype index () `(integer 0 ,array-total-size-limit))
+
  ;; Errors
 
 (define-condition version-error (error)
@@ -30,23 +36,35 @@
          (setf (header-fun header) (read-from-string (read-line stream)))
          (loop for i from 0 below (cadr cmd)
                collect (read-packet stream) into args
-               finally (setf (header-args header) args))))      
+               finally (setf (header-args header) args))))
       header)))
 
  ;; Low level
 
+(defun to-octets (value)
+  (etypecase value
+    (string (string-to-utf-8-bytes value))
+    (octet-vector value)
+    (t (string-to-utf-8-bytes (princ-to-string value)))))
+
 (defun send-packet (stream value)
-  (let ((string (if (stringp value) value (princ-to-string value))))
-    (format stream "~8,'0X~A" (length string) string)))
+  (let ((octets (to-octets value)))
+    (write-sequence (to-octets (format nil "~8,'0X" (length octets))) stream)
+    (write-sequence octets stream)))
 
 (defun send-line (stream value)
-  (let ((string (if (stringp value) value (princ-to-string value))))
-    (write-sequence string stream)
-    (write-sequence #(#\Newline) stream)))
+  (let ((octets (to-octets value)))
+    (write-sequence octets stream)
+    (write-sequence #.(to-octets (make-string 1 :initial-element #\Newline))
+                    stream)))
 
-(defun read-packet (stream)
+(defun read-packet (stream &optional (raw-p nil))
   (let ((length-string (make-string 8)))
-         (read-sequence length-string stream)
-         (let ((input (make-string (parse-integer length-string :radix 16))))
-           (read-sequence input stream)
-           input)))
+    (read-sequence length-string stream)
+    (let* ((len (parse-integer length-string :radix 16))
+           (input (if raw-p
+                      (make-array (the index len)
+                                  :element-type '(unsigned-byte 8))
+                      (make-string len))))
+      (read-sequence input stream)
+      input)))

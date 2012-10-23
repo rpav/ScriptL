@@ -1,6 +1,7 @@
 (in-package :scriptl)
 
 (defvar *scriptl-port* 4010)
+(defvar *scriptl-uds* ".scriptl-sock")
 
 (defvar *header* nil
   "SCRIPTL:HEADER for the current command, or `NIL` if there is no
@@ -56,16 +57,36 @@ if there is no command.")
                       (apply (header-fun *header*) (header-args *header*))))))))))
     (close stream)))
 
-(defun server-loop ()
-  (let ((server (socket-listen "localhost" *scriptl-port* :reuse-address t)))
-    (unwind-protect
-         (loop do
-           (wait-for-input server)
-           (let ((socket (socket-accept server)))
-             (unwind-protect
-                  (client-loop (socket-stream socket))
-               (socket-close socket))))
-      (socket-close server))))
+(defmacro with-open-socket ((var type) &body body)
+  `(let ((,var (sockets:make-socket :connect :passive
+                                    :address-family ,type
+                                    :type :stream)))
+     (unwind-protect
+          (progn ,@body)
+       (close ,var))))
+
+(defun server-loop (type)
+  (with-open-socket (server type)
+    (ecase type
+      (:internet
+       (sockets:bind-address server sockets:+loopback+
+                             :port *scriptl-port*
+                             :reuse-address t))
+      (:local
+       (let ((addr (namestring
+                    (merge-pathnames *scriptl-uds*
+                                     (user-homedir-pathname))))
+             (umask (osicat-posix:umask #o077)))
+         (ignore-errors
+          (osicat-posix:unlink addr))
+         (sockets:bind-address server (sockets:make-address addr))
+         (osicat-posix:umask umask))))
+    (sockets:listen-on server :backlog 5)
+    (loop do
+      (sockets:with-accept-connection (socket server :wait t)
+        (handler-case
+            (client-loop socket)
+          (iolib.streams:hangup (c) (declare (ignore c))))))))
 
 (defun start ()
-  (bt:make-thread #'server-loop :name "ScriptL Server"))
+  (bt:make-thread (lambda () (server-loop :internet)) :name "ScriptL Server"))
