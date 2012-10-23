@@ -38,6 +38,8 @@
   (defun to-octets (value)
     (etypecase value
       (string (string-to-utf-8-bytes value))
+      ((unsigned-byte 8) (make-array 1 :element-type '(unsigned-byte 8)
+                                       :initial-element value))
       (octet-vector value)
       (t (string-to-utf-8-bytes (princ-to-string value))))))
 

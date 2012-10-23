@@ -1,4 +1,4 @@
-# ScriptL
+# ScriptL v2
 
 There are various contortions for getting your Common Lisp started in
 a shell script and running some of your code.  In the end, you're
@@ -17,7 +17,7 @@ If only we could do this:
 
 And then:
 
-```shell
+```console
 $ my-command "foo"
 If this were a real command, we would use foo responsibly.
 $
@@ -31,9 +31,8 @@ commands.
 
 ScriptL requires the following things:
 
-* `usocket` (for listening)
+* `iolib` (for listening)
 * `osicat` (for chmod)
-* netcat (for wrappers to call ScriptL)
 
 Usage is simple:
 
@@ -44,7 +43,7 @@ Usage is simple:
 
 Now you can call things via the shell scripts included in `examples/`:
 
-```shell
+```console
 $ funcall princ "hello world"
 hello world
 $ eval '(princ "hello world")'
@@ -69,7 +68,7 @@ directory (or wherever you started lisp).  It will call
 Alternatively, you can use the `make-command` script included, which
 is a ScriptL wrapper for itself:
 
-```shell
+```console
 $ make-script some-command some-function [error-function]
 ```
 
@@ -77,7 +76,7 @@ This will make the new script in the current working directory,
 because wrappered calls rebind `*DEFAULT-PATHNAME-DEFAULTS*` for your
 convenience.  Amusingly, you can use `make-script` to generate itself:
 
-```shell
+```console
 $ make-script make-script scriptl:make-script scriptl:make-script-usage
 ```
 
@@ -113,7 +112,7 @@ Additionally, you can access the complete call information via
 
 (You don't have to use `&rest args`; this is for demonstration.)
 
-```shell
+```console
 $ funcall show-header 1 2 3
 #S(SCRIPTL:HEADER
    :VERSION 1
@@ -128,13 +127,40 @@ $
 Most of this isn't particularly interesting or beyond what you already
 get, but it's there.
 
+## I/O
+
+The v2 protocol adds a custom client which supports standard lisp I/O
+operations on `*standard-input*` and `*standard-output*`.  For
+example:
+
+```lisp
+(defun test-read-line ()
+  (format t "Read line: ~A~%" (read-line)))
+```
+
+```console
+$ echo foo | test-read-line
+Read line: foo
+$
+```
+
+Additionally, you can use `read-sequence`, `read-byte`, and
+`read-char`.  The former two return octet vectors, which may be useful
+for processing data byte-by-byte.
+
+Reading and writing may be interleaved as desired.  Writing also
+supports `write-sequence`, `write-byte`, and `write-char`.  In order
+to write a raw byte sequence, however, it must be specified as an
+array with `:element-type '(unsigned-byte 8)`.  Otherwise it will be
+treated as a general object, and be pretty-printed.
+
 ## Results and Error Handling
 
 When things run correctly, if there is output to `*standard-output*`,
 this is shown to the user.  If there is no output, the return values
 are shown instead:
 
-```shell
+```console
 $ eval '(+ 2 2)'
 4
 $ eval '(values 1 2 3)'
@@ -144,7 +170,7 @@ $
 
 When things go wrong, the error condition is shown by default:
 
-```shell
+```console
 $ eval 'foo'
 Error: UNBOUND-VARIABLE
 
@@ -177,10 +203,18 @@ the problem went from simply talking to swank to implementing READ in
 the shell, and that's a lot more work than just writing a new, more
 targeted server.
 
-The ScriptL server runs on port 4010 (swank by default runs on 4005).
-You can change this by rebinding `scriptl:*scriptl-port*` before
-running `(scriptl:start)`, and by setting `SCRIPTL_PORT` in the shell.
+For V1, this relied on netcat.  V2 presents a custom C client, which
+builds as part of the ASDF load operation, and supports a number of
+new features, such as I/O.
 
+ScriptL initially used TCP port 4010.  This is bad for a number of
+reasons .. each user can't have their own lisp, and anyone can access
+it.  V2 uses Unix Domain Sockets by default, and only the owner can
+access it.  This is restricted by file permissions.
+
+You can still use the TCP server, by specifying `(scriptl:start
+:internet)`.  You can adjust the port by binding
+`scriptl:*scriptl-port*` to the desired port before doing this.
 This talks *only* to localhost.  It's horribly insecure, though no
 moreso than swank/slime, really.  If you're worried, or not the only
 person with access to your host, *don't run it*.
