@@ -20,12 +20,13 @@
                                            :stream stream))
          (*standard-input* *standard-output*)
          (cmd (header-command *header*)))
-    (handler-bind ((error (lambda (e)
-                            (when (header-error-fun *header*)
-                              (catch 'unhandled
-                                (unless (funcall (header-error-fun *header*) e)
-                                  (throw 'unhandled nil))
-                                (throw 'error-handled nil))))))
+    (handler-bind ((error
+                     (lambda (e)
+                       (when (header-error-fun *header*)
+                         (catch 'unhandled
+                           (unless (funcall (header-error-fun *header*) e)
+                             (throw 'unhandled nil))
+                           (throw 'error-handled nil))))))
       (ecase (car cmd)
         (:funcall
          (let ((*script* (caddr cmd)))

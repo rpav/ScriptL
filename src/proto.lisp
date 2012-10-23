@@ -56,14 +56,18 @@
 
 (defun read-packet (stream &optional (raw-p nil))
   (let ((length-string (make-string 8)))
-    (read-sequence length-string stream)
-    (let* ((len (parse-integer length-string :radix 16))
-           (input (if raw-p
-                      (make-array (the index len)
-                                  :element-type '(unsigned-byte 8))
-                      (make-string len))))
-      (read-sequence input stream)
-      input)))
+    (if (< (read-sequence length-string stream) 8)
+        (error 'end-of-file :stream stream))
+    (let ((len (parse-integer length-string :radix 16)))
+      (when (= 0 len)
+        (error 'end-of-file :stream stream))
+      (let ((input (if raw-p
+                       (make-array (the index len)
+                                   :element-type '(unsigned-byte 8))
+                       (make-string len))))
+        (if (< (read-sequence input stream) len)
+            (error 'end-of-file :stream stream))
+        input))))
 
 (defun read-from-packet (stream)
   (read-from-string (read-packet stream)))

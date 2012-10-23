@@ -43,8 +43,8 @@
       (send-packet stream (- end start))
       (finish-output stream)
       (let ((bytes (read-packet stream t)))
-        (replace seq bytes :start1 start :end1 end))
-      (length seq))))
+        (replace seq bytes :start1 start :end1 end)
+        (length bytes)))))
 
 (defmethod trivial-gray-streams:stream-read-byte
     ((pio-stream packet-io-stream))
@@ -71,3 +71,10 @@
   ((pio-stream packet-io-stream))
   (with-slots (stream) pio-stream
     (trivial-gray-streams:stream-line-column stream)))
+
+(defmethod trivial-gray-streams:stream-fresh-line
+    ((pio-stream packet-io-stream))
+  (with-slots (stream) pio-stream
+    (trivial-gray-streams:stream-fresh-line stream)))
+
+(read-line)

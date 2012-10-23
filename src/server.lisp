@@ -14,16 +14,20 @@ if there is no command.")
 
 
 (defmacro sending-errors (stream &body body)
-  (once-only (stream)
-    `(handler-case
-         (progn ,@body)
-       (error (c)
-         (send-packet ,stream ":error")
-         (send-packet ,stream (class-name (class-of c)))
-         (send-packet ,stream
-                      (with-output-to-string (str)
-                        (format str "~A~%" c)
-                        #+-(trivial-backtrace:print-backtrace c)))))))
+  (with-gensyms (unhandled-error)
+    (once-only (stream)
+      `(catch ',unhandled-error
+         (handler-bind
+             ((error
+                (lambda (c)
+                  (send-packet ,stream ":error")
+                  (send-packet ,stream (class-name (class-of c)))
+                  (send-packet ,stream
+                               (with-output-to-string (str)
+                                 (format str "~A~%~%" c)
+                                 (trivial-backtrace:print-backtrace-to-stream str)))
+                  (throw ',unhandled-error nil))))
+           ,@body)))))
 
 (defun client-loop (stream)
   (unwind-protect
