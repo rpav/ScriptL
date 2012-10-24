@@ -26,16 +26,23 @@ if there is no command.")
                                (with-output-to-string (str)
                                  (format str "~A~%~%" c)
                                  (trivial-backtrace:print-backtrace-to-stream str)))
-                  (throw ',unhandled-error nil))))
-           ,@body)))))
+                  (throw ',unhandled-error t))))
+           ,@body
+           nil)))))
 
 (defun client-loop (stream)
-  (unwind-protect
-       (catch 'error-handled
-         (sending-errors stream
-           (let* ((*header* (decode-header stream))
-                  (*default-pathname-defaults* (header-cwd *header*)))
-             (handle-client-for (header-version *header*) stream))))
+  (when (sending-errors stream
+          (let ((header (decode-header stream)))
+            (bt:make-thread
+             (lambda ()
+               (unwind-protect
+                    (sending-errors stream
+                      (catch 'error-handled
+                        (let* ((*header* header)
+                               (*default-pathname-defaults* (header-cwd *header*)))
+                          (handle-client-for (header-version *header*) stream))))
+                 (close stream)))
+             :name (format nil "ScriptL client: ~A" (header-command header)))))
     (close stream)))
 
 (defmacro with-open-socket ((var type) &body body)
