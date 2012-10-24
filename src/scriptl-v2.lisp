@@ -1,5 +1,7 @@
 (in-package :scriptl)
 
+(defvar *stream* nil)
+
 (defmethod decode-header-for ((version (eql 2)) stream)
   (let* ((cwd (cadr (read-from-packet stream)))
          (cmd (read-from-packet stream))
@@ -19,6 +21,7 @@
   (let* ((*standard-output* (make-instance 'packet-io-stream
                                            :stream stream))
          (*standard-input* *standard-output*)
+         (*stream* stream)
          (cmd (header-command *header*)))
     (handler-bind ((error
                      (lambda (e)
@@ -45,3 +48,20 @@
                                      :if-exists :supersede)
       (format stream *scriptl-text-v2*
               scriptlcom function error-fun))))
+
+ ;; Extensions
+
+(defun readline (prompt)
+  (if *stream*
+      (progn
+        (send-packet *stream* ":interactive-readline")
+        (send-packet *stream* prompt)
+        (read-packet *stream*))
+      (progn
+        (format t "~&~A" prompt)
+        (read-line))))
+
+(defun addhistory (line)
+  (when *stream*
+    (send-packet *stream* ":interactive-addhistory")
+    (send-packet *stream* line)))

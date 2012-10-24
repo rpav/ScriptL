@@ -5,12 +5,20 @@
   ((stream :initarg :stream :initform nil)))
 
 (defmethod trivial-gray-streams:stream-write-sequence
-    ((stream packet-io-stream) sequence start end &key &allow-other-keys)
-  (with-slots ((output-stream stream)) stream
-    (send-packet output-stream ":print")
-    (send-packet output-stream (subseq sequence start end))
+    ((pio-stream packet-io-stream) sequence start end &key &allow-other-keys)
+  (with-slots (stream) pio-stream
+    (send-packet stream ":print")
+    (send-packet stream (subseq sequence start end))
     (finish-output stream))
   sequence)
+
+(defmethod trivial-gray-streams:stream-write-string
+    ((pio-stream packet-io-stream) string &optional start end)
+  (with-slots (stream) pio-stream
+    (send-packet stream ":print")
+    (send-packet stream (subseq string start end))
+    (finish-output stream))
+  string)
 
 (defmethod trivial-gray-streams:stream-write-char
     ((pio-stream packet-io-stream) character)
@@ -69,7 +77,7 @@
 (defmethod trivial-gray-streams:stream-finish-output
   ((pio-stream packet-io-stream))
   (with-slots (stream) pio-stream
-    (finish-output stream)))
+    (trivial-gray-streams:stream-finish-output stream)))
 
 (defmethod trivial-gray-streams:stream-line-column
   ((pio-stream packet-io-stream))
@@ -79,6 +87,15 @@
 (defmethod trivial-gray-streams:stream-fresh-line
     ((pio-stream packet-io-stream))
   (with-slots (stream) pio-stream
-    (trivial-gray-streams:stream-fresh-line stream)))
+    (send-packet stream ":print")
+    (send-packet stream #\Newline)
+    (finish-output stream))
+  t)
 
-(read-line)
+(defmethod trivial-gray-streams:stream-terpri
+    ((pio-stream packet-io-stream))
+  (with-slots (stream) pio-stream
+    (send-packet stream ":print")
+    (send-packet stream #\Newline)
+    (finish-output stream))
+  nil)

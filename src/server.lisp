@@ -46,28 +46,30 @@ if there is no command.")
           (progn ,@body)
        (close ,var))))
 
+(defun bind-sock (sock type)
+  (ecase type
+    (:internet
+     (sockets:bind-address sock sockets:+loopback+
+                           :port *scriptl-port*
+                           :reuse-address t))
+    (:local
+     (let ((addr (namestring
+                  (merge-pathnames *scriptl-uds*
+                                   (user-homedir-pathname))))
+           (umask (osicat-posix:umask #o077)))
+       (ignore-errors
+        (osicat-posix:unlink addr))
+       (sockets:bind-address sock (sockets:make-address addr))
+       (osicat-posix:umask umask)))))
+
 (defun server-loop (type)
   (with-open-socket (server type)
-    (ecase type
-      (:internet
-       (sockets:bind-address server sockets:+loopback+
-                             :port *scriptl-port*
-                             :reuse-address t))
-      (:local
-       (let ((addr (namestring
-                    (merge-pathnames *scriptl-uds*
-                                     (user-homedir-pathname))))
-             (umask (osicat-posix:umask #o077)))
-         (ignore-errors
-          (osicat-posix:unlink addr))
-         (sockets:bind-address server (sockets:make-address addr))
-         (osicat-posix:umask umask))))
+    (bind-sock server type)
     (sockets:listen-on server :backlog 5)
-    (loop do
-      (sockets:with-accept-connection (socket server :wait t)
-        (handler-case
-            (client-loop socket)
-          (iolib.streams:hangup (c) (declare (ignore c))))))))
+    (loop as socket = (iolib.sockets:accept-connection server :wait t)
+          do (handler-case
+                 (client-loop socket)
+               (iolib.streams:hangup (c) (declare (ignore c)))))))
 
 (defun start (&optional (type :local))
   (bt:make-thread (lambda () (server-loop type)) :name "ScriptL Server"))

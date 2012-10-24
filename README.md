@@ -127,6 +127,36 @@ $
 Most of this isn't particularly interesting or beyond what you already
 get, but it's there.
 
+## Readline
+
+The v2 client adds simple support for the GNU readline library.
+There are two basic operations: `readline PROMPT` and `addhistory
+LINE`:
+
+```lisp
+(defun test ()
+  (format t "Type 'quit' to finish.~%")
+  (loop as line = (readline "> ")
+        until (string= line "quit") do
+          (addhistory line)
+          (format t "You typed: ~A~%" line)))
+```
+
+In the shell:
+
+```console
+Type 'quit' to finish.
+> foo
+You typed: foo
+> quit
+```
+
+If GNU readline support is compiled into the client (autodetected),
+this will have all the fancy editing features that provides, including
+history.  If not, or if the function is not called from ScriptL, the
+prompt will be shown, but only basic terminal input is provided, and
+history is ignored.
+
 ## I/O
 
 The v2 protocol adds a custom client which supports standard lisp I/O

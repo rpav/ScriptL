@@ -46,7 +46,8 @@
 (defun send-packet (stream value)
   (let ((octets (to-octets value)))
     (write-sequence (to-octets (format nil "~8,'0X" (length octets))) stream)
-    (write-sequence octets stream)))
+    (write-sequence octets stream)
+    (finish-output stream)))
 
 (defun send-line (stream value)
   (let ((octets (to-octets value)))
