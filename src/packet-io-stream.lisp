@@ -14,10 +14,12 @@
 
 (defmethod trivial-gray-streams:stream-write-string
     ((pio-stream packet-io-stream) string &optional start end)
-  (with-slots (stream) pio-stream
-    (send-packet stream ":print")
-    (send-packet stream (subseq string start end))
-    (finish-output stream))
+  (let ((start (or start 0))
+        (end (or end (length string))))
+    (with-slots (stream) pio-stream
+      (send-packet stream ":print")
+      (send-packet stream (subseq string start end))
+      (finish-output stream)))
   string)
 
 (defmethod trivial-gray-streams:stream-write-char

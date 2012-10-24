@@ -1,5 +1,18 @@
 (in-package :scriptl)
 
+ ;; Variables
+
+(defvar *scriptl-port* 4010)
+(defvar *scriptl-uds* ".scriptl-sock")
+
+(defvar *header* nil
+  "SCRIPTL:HEADER for the current command, or `NIL` if there is no
+command.")
+
+(defvar *script* nil
+  "String indicating the script name for the current command, or `NIL`
+if there is no command.")
+
  ;; Types
 
 (deftype octet () '(unsigned-byte 8))

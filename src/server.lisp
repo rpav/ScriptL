@@ -1,16 +1,5 @@
 (in-package :scriptl)
 
-(defvar *scriptl-port* 4010)
-(defvar *scriptl-uds* ".scriptl-sock")
-
-(defvar *header* nil
-  "SCRIPTL:HEADER for the current command, or `NIL` if there is no
-command.")
-
-(defvar *script* nil
-  "String indicating the script name for the current command, or `NIL`
-if there is no command.")
-
 
 
 (defmacro sending-errors (stream &body body)
