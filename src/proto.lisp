@@ -37,7 +37,7 @@ if there is no command.")
  ;; Input header
 
 (defstruct header
-  version cwd command fun args error-fun)
+  version cwd command system fun args error-fun)
 
 (defun decode-header (stream)
   (let* ((ver (cadr (read-from-packet stream))))

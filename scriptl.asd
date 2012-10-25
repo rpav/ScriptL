@@ -24,7 +24,7 @@
   :description "Scripting, Common Lisp style"
   :author "Ryan Pavlik"
   :license "LLGPL"
-  :version "2.0"
+  :version "2.1"
 
   :depends-on (:alexandria :bordeaux-threads :iolib :osicat
                :trivial-utf-8 :trivial-gray-streams :trivial-backtrace)

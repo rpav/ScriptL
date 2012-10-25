@@ -8,6 +8,6 @@
 
            #:make-script #:make-script-usage
 
-           #:readline #:addhistory
+           #:exit-code #:readline #:addhistory
 
            #:mk-cmd))

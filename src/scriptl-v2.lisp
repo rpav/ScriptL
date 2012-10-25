@@ -11,6 +11,7 @@
       (ecase (car cmd)
         (:funcall
          (setf (header-fun header) (cadr cmd))
+         (setf (header-system header) (cadddr cmd))
          (let ((args (read-from-packet stream)))
            (loop for i from 0 below (cadr args)
                  collect (read-packet stream) into list
@@ -22,7 +23,8 @@
                                            :stream stream))
          (*standard-input* *standard-output*)
          (*stream* stream)
-         (cmd (header-command *header*)))
+         (cmd (or (header-command *header*) ""))
+         (sys (header-system *header*)))
     (handler-bind ((error
                      (lambda (e)
                        (when (header-error-fun *header*)
@@ -33,7 +35,10 @@
       (ecase (car cmd)
         (:funcall
          (let ((*script* (caddr cmd)))
-           (apply (header-fun *header*) (header-args *header*))))))))
+           (when (and sys (> (length sys) 0))
+             (asdf:load-system sys))
+           (let ((fun (read-from-string (header-fun *header*))))
+             (apply fun (header-args *header*)))))))))
 
 (defmethod make-script-for ((version (eql 2)) filename function error-fun
                             &key &allow-other-keys)
@@ -50,6 +55,12 @@
               scriptlcom function error-fun))))
 
  ;; Extensions
+
+(defun exit-code (val)
+  (declare (type (integer 0 255) val))
+  (when *stream*
+    (send-packet *stream* ":exit")
+    (send-packet *stream* (format nil "~D" val))))
 
 (defun readline (prompt)
   (if *stream*
