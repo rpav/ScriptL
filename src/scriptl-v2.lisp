@@ -36,12 +36,19 @@
         (:funcall
          (let ((*script* (caddr cmd)))
            (when (and sys (> (length sys) 0))
-             (asdf:load-system sys))
+             (handler-case
+                 (unless (asdf::component-loaded-p sys)
+                   (asdf:load-system sys))
+               (error (e)
+                 (declare (ignore e))
+                 (error "Error trying to load system: \"~A\"~@[ ~A~]" sys
+                        (when (not (asdf:find-system sys nil))
+                          "(non-existent system)")))))
            (let ((fun (read-from-string (header-fun *header*))))
              (apply fun (header-args *header*)))))))))
 
 (defmethod make-script-for ((version (eql 2)) filename function error-fun
-                            &key &allow-other-keys)
+                            &key system &allow-other-keys)
   (let ((scriptlcom
           (namestring
            (merge-pathnames
@@ -52,7 +59,7 @@
     (with-open-file (stream filename :direction :output
                                      :if-exists :supersede)
       (format stream *scriptl-text-v2*
-              scriptlcom function error-fun))))
+              scriptlcom function error-fun (or system "")))))
 
  ;; Extensions
 

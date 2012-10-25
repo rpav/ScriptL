@@ -3,30 +3,33 @@
 (defgeneric make-script-for (version filename function error-fun
                              &key &allow-other-keys))
 
-(defun make-script (filename function &optional error-fun)
+(defun make-script (filename function &optional error-fun system)
   (let ((function (if (stringp function)
                       (read-from-string function)
                       function))
         (error-fun (if (stringp error-fun)
                        (read-from-string error-fun)
                        error-fun)))
-    (format t "~&Creating script ~A for function ~A~%" filename function)
+    (format t "Creating script ~A for function ~A~%" filename function)
     (when error-fun
       (format t "Error function: ~A~%" error-fun))
+    (when system
+      (format t "Will preload ~A~%" system))
     (make-script-for 2 filename
                      (format nil "~A::~A"
                              (package-name (symbol-package function))
                              (symbol-name function))
                      (format nil "~A::~A"
                              (package-name (symbol-package error-fun))
-                             (symbol-name error-fun)))
+                             (symbol-name error-fun))
+                     :system system)
     (nix:chmod (merge-pathnames filename) #o755))
   (values))
 
 (defun make-script-usage (e)
   (declare (ignore e))
   (unless (= 2 (length (header-args *header*)))
-    (format t "Usage: make-script SCRIPT-NAME FUNCTION-NAME [ERROR-HANDLER]
+    (format t "Usage: make-script SCRIPT-NAME FUNCTION-NAME [ERROR-HANDLER [ASDF-SYSTEM]]
 
 Example: make-script make-script \\                # script name
                      scriptl:make-script \\        # function

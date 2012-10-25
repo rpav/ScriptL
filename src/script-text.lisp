@@ -8,8 +8,9 @@
 SCRIPTLCOM=\"~A\"
 FUNCTION=\"~A\"
 ERRORS=\"~A\"
+SYSTEM=\"~A\"
 
-$SCRIPTLCOM --sl-version 2 -E \"$ERRORS\" -f \"$FUNCTION\" -- \"$@\"
+$SCRIPTLCOM --sl-version 2 -E \"$ERRORS\" -l \"$SYSTEM\" -f \"$FUNCTION\" -- \"$@\"
 ")
 
 (defparameter *script-text-v1*

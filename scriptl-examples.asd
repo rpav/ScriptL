@@ -20,4 +20,5 @@
                    :package #:scriptl)
    (scriptl:mk-cmd "test-cmd"
                    :function #:test-cmd
-                   :package #:scriptl.example)))
+                   :package #:scriptl.example
+                   :system "scriptl-examples")))
