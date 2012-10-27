@@ -157,6 +157,19 @@ history.  If not, or if the function is not called from ScriptL, the
 prompt will be shown, but only basic terminal input is provided, and
 history is ignored.
 
+## getenv
+
+Also included in v2 is support for remote `getenv(3)`, allowing
+client-side configuration via environment variables.  This is done via
+the `scriptl:getenv` function.
+
+This will return the value of a variable on the remote side, or for
+functions not being called via a ScriptL command, will fall back to
+`osicat-posix:getenv` and return the environment for the running lisp.
+
+In both cases, this returns the value of the variable as a string if
+set, or `NIL`.
+
 ## I/O
 
 The v2 protocol adds a custom client which supports standard lisp I/O
