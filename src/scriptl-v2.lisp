@@ -83,3 +83,15 @@
   (when *stream*
     (send-packet *stream* ":interactive-addhistory")
     (send-packet *stream* line)))
+
+(defun getenv (var)
+  (declare (type string var))
+  (if *stream*
+      (progn
+        (send-packet *stream* ":getenv")
+        (send-packet *stream* var)
+        (let ((found-p (read-packet *stream*)))
+          (when (string= found-p "t")
+            (read-packet *stream*))))
+      (osicat-posix:getenv var)))
+

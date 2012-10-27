@@ -8,6 +8,7 @@
 
            #:make-script #:make-script-usage
 
-           #:exit-code #:readline #:addhistory
+           #:getenv #:exit-code
+           #:readline #:addhistory
 
            #:mk-cmd))
