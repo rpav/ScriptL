@@ -1,0 +1,5 @@
+# Annoyances that should be propagated by default.
+
+#ETAGS_ARGS = --declarations --members
+
+AM_CPPFLAGS = -I$(top_srcdir)/src/include -I$(top_srcdir)

@@ -1,0 +1,32 @@
+scriptlcom
+==========
+
+This is a fairly simple C client to handle the majority of the
+interaction with ScriptL from the shell.  It supports both V1 and V2
+protocols, and TCP and Unix Domain Sockets.
+
+
+Usage
+-----
+
+Usage: scriptlcom [options ...] {operation ARG} [args ...]
+
+       scriptlcom [--funcall FUNCTION] args ...
+       scriptlcom [--eval STRING]
+
+Operations:
+      -e, --eval       Eval some lisp
+      -f, --funcall    Call a function
+
+Options:
+      -E, --errors     Errors handled by the specified function
+      -H, --host       Specify a host
+      -P, --port       Specify a port
+      -I, --inet       Use an inet socket, connecting to --host and --port;
+                       defaults to localhost:4010
+      -U, --uds        Use a Unix Domain Socket (with optional filename);
+                       defaults to $HOME/.scriptl-sock
+
+      --sl-version     Call using a specific ScriptL version
+
+      -h, --help       Show this message
