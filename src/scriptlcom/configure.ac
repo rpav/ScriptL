@@ -8,7 +8,7 @@ AC_INIT([scriptlcom], [1.0.0])
 AC_SUBST([PACKAGE_NAME])dnl
 
 AM_INIT_AUTOMAKE
-AM_CONFIG_HEADER([defs.h])
+AC_CONFIG_HEADERS([defs.h])
 
 dnl Various required programs
 AC_PROG_CC
@@ -16,10 +16,7 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-AC_LIBTOOL_DLOPEN
 AC_DISABLE_STATIC
-AC_PROG_LIBTOOL
-AC_SUBST(LIBTOOL_DEPS)
 
 dnl Various required libraries
 
