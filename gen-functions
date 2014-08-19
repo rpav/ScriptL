@@ -18,15 +18,6 @@ function initialize () {
 
 function finalize () {
     cd $ORIGDIR
-
-    if [ "$1" != "--generate-only" ]; then
-        $SRCDIR/configure --enable-debug "$@"
-
-        if [ $? -eq 0 ]; then
-            echo 
-            echo "Now type 'make' to compile $PROJECT."
-        fi
-    fi
 }
 
 function check_ver () {
@@ -115,16 +106,16 @@ function generate () {
 	aclocal $ACLOCAL_FLAGS
 
 	# optionally feature autoheader
-	if grep AM_CONFIG_HEADER configure.ac >/dev/null ; then
+	if grep AC_CONFIG_HEADERS configure.ac >/dev/null ; then
 	    (autoheader --version)  < /dev/null > /dev/null 2>&1 && autoheader
 	fi
 
         # It seems that libtool 1.4.2 doesn't give call libtoolize anymore
         if grep AC_PROG_LIBTOOL configure.ac >/dev/null; then
-            libtoolize --automake --force
+            libtoolize --automake --copy --force
         fi
 
-	automake --add-missing $am_opt
+	automake --add-missing --copy $am_opt
 	autoconf
     done
 }

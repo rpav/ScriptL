@@ -14,6 +14,8 @@
 
 initialize "$AUTO_PROJECT" "-d" "src/test"
 
+check_prog "autoheader" "autoheader --version" $REQ_AUTOHEADER "rebuild autoheader" \
+           "ftp://ftp.gnu.org/pub/gnu/autoconf/"
 check_prog "autoconf" "autoconf --version" $REQ_AUTOCONF "rebuild configure" \
            "ftp://ftp.gnu.org/pub/gnu/autoconf/"
 check_prog "automake" "automake --version" $REQ_AUTOMAKE "rebuild Makefiles" \

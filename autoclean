@@ -26,7 +26,8 @@ find . -type l -exec rm {} \;
 
 echo "cleaning out other..."
 rm -rf autom4te.cache
-rm -f aclocal.m4 defs.h.in configure config.log config.status
+rm -f aclocal.m4 defs.h.in configure config.log config.status \
+    compile config.guess config.sub depcomp install-sh missing INSTALL
 
 echo -n "Make a tarball? (y/n) "
 read yn
