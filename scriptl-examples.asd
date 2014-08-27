@@ -21,4 +21,14 @@
    (scriptl:mk-cmd "test-cmd"
                    :function #:test-cmd
                    :package #:scriptl.example
+                   :system "scriptl-examples")
+   (scriptl:mk-cmd "eval"
+                   :function #:test-eval
+                   :errors #:eval-usage
+                   :package #:scriptl.example
+                   :system "scriptl-examples")
+   (scriptl:mk-cmd "funcall"
+                   :function #:test-funcall
+                   :errors #:funcall-usage
+                   :package #:scriptl.example
                    :system "scriptl-examples")))
