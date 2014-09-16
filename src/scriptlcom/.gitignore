@@ -1,2 +1,10 @@
 autom4te.cache/
 INSTALL
+*.o
+Makefile
+stamp-h1
+scriptlcom
+config.log
+config.status
+defs.h
+src/.deps
