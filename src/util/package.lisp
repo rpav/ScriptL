@@ -8,6 +8,7 @@
 
    ;; Streams
    #:ignore-eof
-   #:read-lines #:read-lines-to-string))
+   #:read-lines #:read-lines-to-string
+   #:with-io))
 
 (in-package :scriptl.util)

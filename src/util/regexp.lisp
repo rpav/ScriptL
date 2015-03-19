@@ -17,6 +17,8 @@
                                        :extended-mode ,extend)))
          ,@body))))
 
+#+make-util (make-util:util-depends 'with-scanner 'regex-mode)
+
 (defun print-matches (line matches)
   (declare (ignore matches))
   (format t "~&~A~%" line))
@@ -32,10 +34,14 @@
                 (when match
                   (funcall function line regs)))))))
 
+#+make-util (make-util:util-depends 'grep 'with-scanner 'print-matches)
+
 (defun grep-file (regex file
                   &key (function 'print-matches) (mode "") (output *standard-output*))
   (with-open-file (stream file)
     (grep regex stream :function function :mode mode :output output)))
+
+#+make-util (make-util:util-depends 'grep-file 'grep)
 
 (defmacro with-grep-env ((fun line regs user-body) &body body)
   `(let ((line-var (or ,line (gensym "LINE")))
@@ -60,6 +66,9 @@
     (with-grep-env (fun line regs body)
       `(grep-file ,regex ,file :mode ,mode :function #',fun :output ,output))))
 
+#+make-util (make-util:util-depends 'do-grep-file
+                                    'with-grep-env 'grep-file)
+
 (defmacro do-grep ((regex &key line regs mode
                     (input '*standard-input*) (output '*standard-output*))
                    &body body)
@@ -67,3 +76,5 @@
     (with-grep-env (fun line regs body)
       `(grep ,regex ,input :function #',fun :mode ,mode
              :output ,output))))
+
+#+make-util (make-util:util-depends 'do-grep 'with-grep-env 'grep)
