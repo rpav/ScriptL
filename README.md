@@ -41,10 +41,18 @@ Usage is simple:
 (scriptl:start)
 ```
 
-Now you can call things via the shell scripts included in `examples/`:
+The scripts in `examples/` require `unix-options` for argument parsing
+as well, so to run them load that system as well:
+
+```lisp
+(asdf:load-system :scriptl-examples)
+```
+
+Now you can call things via the generated shell scripts (you might have
+to call them via `./[command]` from the local directory):
 
 ```console
-$ funcall princ "hello world"
+$ funcall princ '"hello world"'
 hello world
 $ eval '(princ "hello world")'
 hello world
