@@ -9,6 +9,6 @@
    ;; Streams
    #:ignore-eof
    #:read-lines #:read-lines-to-string
-   #:with-io))
+   #:with-io #:with-io*))
 
 (in-package :scriptl.util)
