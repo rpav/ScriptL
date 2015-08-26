@@ -1,14 +1,27 @@
-(defpackage :scriptl
+(in-package :defpackage+-user-1)
+
+(defpackage+ :scriptl
   (:use #:cl #:alexandria #:trivial-utf-8)
-  (:export #:start #:*header* #:*script* #:*scriptl-port*
+  (:export-only
 
-           #:header
-           #:header-version #:header-cwd #:header-command
-           #:header-fun #:header-args
+   ;; Server
+   #:start #:*header* #:*script* #:*scriptl-port*
 
-           #:make-script #:make-script-usage
+   ;; Interface
+   #:header
+   #:header-version #:header-cwd #:header-command
+   #:header-fun #:header-args
 
-           #:getenv #:exit-code
-           #:readline #:addhistory
+   ;; Creating files
+   #:make-script #:make-script-usage
 
-           #:mk-cmd))
+   ;; For scripts
+   #:getenv #:exit-code
+   #:readline #:addhistory
+
+   ;; ASDF
+   #:mk-cmd
+
+   ;; SCRIPT interface
+   #:script-register #:script-list #:script-make #:scriptl
+   #:register))

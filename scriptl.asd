@@ -27,21 +27,28 @@
   :version "2.1"
 
   :depends-on (:alexandria :bordeaux-threads :iolib :osicat
-               :trivial-utf-8 :trivial-gray-streams :trivial-backtrace)
-  :pathname "src"
+               :trivial-utf-8 :trivial-gray-streams :trivial-backtrace
+               :cl-ppcre :defpackage-plus)
   :serial t
 
   :components
-  ((:file "package")
-   (:file "proto")
-   (:file "packet-io-stream")
-   (:file "script-text")
-   (:file "make-script")
-   (:file "scriptl-v1")
-   (:file "scriptl-v2")
-   (:file "server")
-   (:file "asdf-util")
+  ((:module "bin"
+    :pathname "bin")
 
-   (:autoconf-module "scriptlcom"
-    :pathname "scriptlcom"
-    :test-target "src/scriptlcom")))
+   (:module "src"
+    :pathname "src"
+    :components
+    ((:file "package")
+     (:file "proto")
+     (:file "packet-io-stream")
+     (:file "script-text")
+     (:file "make-script")
+     (:file "scriptl-v1")
+     (:file "scriptl-v2")
+     (:file "server")
+     (:file "asdf-util")
+     (:file "scriptl-cmd")
+
+     (:autoconf-module "scriptlcom"
+      :pathname "scriptlcom"
+      :test-target "src/scriptlcom")))))

@@ -29,15 +29,11 @@ commands.
 
 ## Quick Guide
 
-ScriptL requires the following things:
+You can get ScriptL from Quicklisp via `(ql:quickload "scriptl")`.  This will load scriptl and create the `scriptl` command for managing scripts (see below).
 
-* `iolib` (for listening)
-* `osicat` (for chmod)
-
-Usage is simple:
+First however, you must start the server.  It may be convenient to create a shell script that launches your favorite CL on login and does the following:
 
 ```lisp
-(asdf:load-system :scriptl)
 (scriptl:start)
 ```
 
@@ -90,6 +86,57 @@ $ make-script make-script scriptl:make-script scriptl:make-script-usage
 
 This will overwrite itself with an updated copy, assuming you're using
 an OS which isn't picky about such things.
+
+## `scriptl` and registering scripts
+
+After installing ScriptL, the `scriptl` command will be created in the `bin/` directory.  This is part of a small API for registering, listing, and creating scripts.  For instance:
+
+```console
+$ scriptl list
+Script                           Description
+
+SCRIPTL:SCRIPTL                - ScriptL management command: scriptl
+$ scriptl make SCRIPTL:SCRIPTL
+$ ls
+scriptl
+$
+```
+
+This is more useful with a lot of scripts loaded.  For example, after loading my personal scripts:
+
+```console
+$ scriptl list
+Script                           Description
+
+SCRIPTL.SCRIPT.JSON:JSON       - JSON manipulation commands: json, json2yaml,
+                                 sexp2json, dir2json
+SCRIPTL.SCRIPT.NEW:NEW         - Template system command: new
+SCRIPTL.SCRIPT.YAML:YAML       - YAML manipulation commands: yaml2json
+SCRIPTL:SCRIPTL                - ScriptL management command: scriptl
+$
+```
+
+To register scripts for this list, you should make a function which calls `MAKE-COMMAND` for each script you wish to create, and then call `SCRIPTL:REGISTER` to register this:
+
+```lisp
+(defun make-my-scripts ()
+  (make-command ...)
+  (make-command ...))
+
+(scriptl:register 'my-scripts 'make-my-scripts "My script commands: foo, bar, baz")
+(export 'my-scripts)
+```
+
+Now you would see the following:
+
+```lisp
+$ scriptl list
+Script                           Description
+
+MY-PACKAGE:MY-SCRIPTS          - My script commands: foo, bar, baz
+SCRIPTL:SCRIPTL                - ScriptL management command: scriptl
+$
+```
 
 ## Defaults and the Header
 

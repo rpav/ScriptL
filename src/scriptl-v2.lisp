@@ -55,7 +55,7 @@
             (make-pathname :name "scriptlcom"
                            :directory '(:relative "src"))
             (asdf:component-pathname
-             (asdf:find-component :scriptl '("scriptlcom")))))))
+             (asdf:find-component :scriptl '("src" "scriptlcom")))))))
     (with-open-file (stream filename :direction :output
                                      :if-exists :supersede)
       (format stream *scriptl-text-v2*

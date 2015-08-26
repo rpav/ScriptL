@@ -1,7 +1,7 @@
 (in-package :scriptl)
 
 (defclass packet-io-stream
-    (stream trivial-gray-streams:trivial-gray-stream-mixin)
+    (trivial-gray-streams:fundamental-stream)
   ((stream :initarg :stream :initform nil)))
 
 (defmethod trivial-gray-streams:stream-write-sequence
