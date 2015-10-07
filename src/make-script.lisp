@@ -10,7 +10,6 @@
         (error-fun (if (stringp error-fun)
                        (read-from-string error-fun)
                        error-fun)))
-    (format t "Creating script: ~A~%" filename)
     (make-script-for 2 filename
                      (format nil "~A::~A"
                              (package-name (symbol-package function))

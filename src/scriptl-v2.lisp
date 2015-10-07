@@ -4,10 +4,11 @@
 
 (defmethod decode-header-for ((version (eql 2)) stream)
   (let* ((cwd (cadr (read-from-packet stream)))
-         (cmd (read-from-packet stream))
-         (err (cadr (read-from-packet stream))))
-    (let ((header (make-header :version 2 :cwd cwd :command cmd
-                               :error-fun err)))
+         (cmd (read-from-packet stream)))
+    (maybe-load-system (fourth cmd))
+    (let* ((err (cadr (read-from-packet stream)))
+           (header (make-header :version 2 :cwd cwd :command cmd
+                                :error-fun err)))
       (ecase (car cmd)
         (:funcall
          (setf (header-fun header) (cadr cmd))
@@ -20,11 +21,10 @@
 
 (defmethod handle-client-for ((version (eql 2)) stream)
   (let* ((*standard-output* (make-instance 'packet-io-stream
-                                           :stream stream))
+                              :stream stream))
          (*standard-input* *standard-output*)
          (*stream* stream)
-         (cmd (or (header-command *header*) ""))
-         (sys (header-system *header*)))
+         (cmd (or (header-command *header*) "")))
     (handler-bind ((error
                      (lambda (e)
                        (when (header-error-fun *header*)
@@ -35,15 +35,6 @@
       (ecase (car cmd)
         (:funcall
          (let ((*script* (caddr cmd)))
-           (when (and sys (> (length sys) 0))
-             (handler-case
-                 (unless (asdf::component-loaded-p sys)
-                   (asdf:load-system sys))
-               (error (e)
-                 (declare (ignore e))
-                 (error "Error trying to load system: \"~A\"~@[ ~A~]" sys
-                        (when (not (asdf:find-system sys nil))
-                          "(non-existent system)")))))
            (let ((fun (read-from-string (header-fun *header*))))
              (apply fun (header-args *header*)))))))))
 

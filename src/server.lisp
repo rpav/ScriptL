@@ -2,6 +2,17 @@
 
 
 
+(defun maybe-load-system (sys)
+  (when (and sys (> (length sys) 0))
+    (handler-case
+        (unless (asdf::component-loaded-p sys)
+          (asdf:load-system sys))
+      (error (e)
+        (declare (ignore e))
+        (error "Error trying to load system: \"~A\"~@[ ~A~]" sys
+               (when (not (asdf:find-system sys nil))
+                 "(non-existent system)"))))))
+
 (defmacro sending-errors (stream &body body)
   (with-gensyms (unhandled-error)
     (once-only (stream)
