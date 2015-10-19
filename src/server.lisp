@@ -78,5 +78,9 @@
                  (client-loop socket)
                (iolib.streams:hangup (c) (declare (ignore c)))))))
 
+(defvar *scriptl-threads* (make-hash-table))
+
 (defun start (&optional (type :local))
-  (bt:make-thread (lambda () (server-loop type)) :name "ScriptL Server"))
+  (ensure-gethash type *scriptl-threads*
+                  (bt:make-thread (lambda () (server-loop type))
+                                  :name "ScriptL Server")))
