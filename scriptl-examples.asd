@@ -8,7 +8,7 @@
   :author "Ryan Pavlik"
   :license "LLGPL"
 
-  :depends-on (:scriptl)
+  :depends-on (:scriptl :unix-options)
   :pathname "examples"
   :serial t
 
