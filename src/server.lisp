@@ -35,13 +35,15 @@
           (let ((header (decode-header stream)))
             (bt:make-thread
              (lambda ()
-               (unwind-protect
-                    (sending-errors stream
-                      (catch 'error-handled
-                        (let* ((*header* header)
-                               (*default-pathname-defaults* (header-cwd *header*)))
-                          (handle-client-for (header-version *header*) stream))))
-                 (close stream)))
+               (handler-case
+                   (unwind-protect
+                        (sending-errors stream
+                          (catch 'error-handled
+                            (let* ((*header* header)
+                                   (*default-pathname-defaults* (header-cwd *header*)))
+                              (handle-client-for (header-version *header*) stream))))
+                     (close stream))
+                 (iolib:hangup ())))
              :name (format nil "ScriptL client: ~A" (header-command header)))))
     (close stream)))
 
