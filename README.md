@@ -8,24 +8,24 @@ write, run, stop, repeat.
 If only we could do this:
 
 ```lisp
-(defun my-command (x)
-  (format t "If this were a real command, we would use ~A responsibly~%" x))
+(defun my-script (x)
+  (format t "If this were a real script, we would use ~A responsibly~%" x))
 
 ;; Make a wrapper to call this in our running Lisp!
-(make-command "my-command" 'my-command)
+(make-script "my-script" 'my-script)
 ```
 
 And then:
 
 ```console
-$ my-command "foo"
-If this were a real command, we would use foo responsibly.
+$ my-script "foo"
+If this were a real script, we would use foo responsibly.
 $
 ```
 
 Well, of course, that's exactly what ScriptL lets you do.  Since this
 **calls your running lisp**, it means you're **live coding** your
-commands.
+scripts.
 
 ## Quick Guide
 
@@ -45,7 +45,7 @@ as well, so to run them load that system as well:
 ```
 
 Now you can call things via the generated shell scripts (you might have
-to call them via `./[command]` from the local directory):
+to call them via `./[script]` from the local directory):
 
 ```console
 $ funcall princ '"hello world"'
@@ -58,22 +58,22 @@ $
 ```
 
 Alternatively, once you have something you want as a more permanent
-command, you can use `SCRIPTL:MAKE-COMMAND` as above:
+script, you can use `SCRIPTL:MAKE-SCRIPT` as above:
 
 ```lisp
-(make-command COMMAND-NAME FUNCTION-NAME &optional ERROR-HANDLER)
+(make-script "SCRIPT-NAME" 'FUNCTION-NAME &optional ERROR-HANDLER)
 ```
 
-This will make a shell script called `COMMAND`, probably in your home
+This will make a shell script called `SCRIPT-NAME`, probably in your home
 directory (or wherever you started lisp).  It will call
 `FUNCTION-NAME`, with any parameters passed to the script given as
 *strings*.
 
-Alternatively, you can use the `make-command` script included, which
+Alternatively, you can use the `make-script` script included in the examples, which
 is a ScriptL wrapper for itself:
 
 ```console
-$ make-script some-command some-function [error-function]
+$ make-script some-script some-function [error-function]
 ```
 
 This will make the new script in the current working directory,
@@ -116,12 +116,12 @@ SCRIPTL:SCRIPTL                - ScriptL management command: scriptl
 $
 ```
 
-To register scripts for this list, you should make a function which calls `MAKE-COMMAND` for each script you wish to create, and then call `SCRIPTL:REGISTER` to register this:
+To register scripts for this list, you should make a function which calls `MAKE-SCRIPT` for each script you wish to create, and then call `SCRIPTL:REGISTER` to register this:
 
 ```lisp
 (defun make-my-scripts ()
-  (make-command ...)
-  (make-command ...))
+  (make-script ...)
+  (make-script ...))
 
 (scriptl:register 'my-scripts 'make-my-scripts "My script commands: foo, bar, baz")
 (export 'my-scripts)
