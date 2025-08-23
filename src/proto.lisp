@@ -49,12 +49,22 @@ if there is no command.")
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defun to-octets (value)
-    (etypecase value
-      (string (string-to-utf-8-bytes value))
-      ((unsigned-byte 8) (make-array 1 :element-type '(unsigned-byte 8)
-                                       :initial-element value))
-      (octet-vector value)
-      (t (string-to-utf-8-bytes (princ-to-string value))))))
+    (let ((result (etypecase value
+                    (string (string-to-utf-8-bytes value))
+                    ((unsigned-byte 8) (make-array 1 :element-type '(unsigned-byte 8)
+                                                     :initial-element value))
+                    (octet-vector value)
+                    (t (string-to-utf-8-bytes (princ-to-string value))))))
+      ;; Under the LispWorks we have to provide statically allocated vectors
+      ;; when writing to the socket. See details here:
+      ;; https://github.com/rpav/ScriptL/issues/10#issuecomment-904430041
+      #+lispworks
+      (make-array (array-dimensions result)
+                  :element-type (array-element-type result)
+                  :initial-contents result
+                  :allocation :static)
+      #-lispworks
+      result)))
 
 (defun send-packet (stream value)
   (let ((octets (to-octets value)))
