@@ -81,6 +81,11 @@
   (with-slots (stream) pio-stream
     (trivial-gray-streams:stream-finish-output stream)))
 
+(defmethod trivial-gray-streams:stream-force-output
+    ((pio-stream packet-io-stream))
+  (with-slots (stream) pio-stream
+    (trivial-gray-streams:stream-force-output stream)))
+
 (defmethod trivial-gray-streams:stream-line-column
   ((pio-stream packet-io-stream))
   (with-slots (stream) pio-stream
